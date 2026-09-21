@@ -1,0 +1,29 @@
+# ModelPilot benchmark configuration
+# Run with: go run ./cmd/modelpilot -config ./configs/benchmark.example.yaml
+
+dataset: ./examples/dataset.jsonl
+output: ./data/results
+
+model:
+  type: mock
+  name: local-mock
+  # type: http
+  # endpoint: http://localhost:8080/invoke
+  # token: ${MODELPILOT_TOKEN}
+  # type: openai
+  # name: gpt-4o-mini
+  # endpoint: http://localhost:8000/v1/chat/completions
+  # temperature: 0
+  # max_tokens: 512
+
+benchmark:
+  concurrency: 4
+  timeout_seconds: 30
+
+compare:
+  baseline: ""
+  candidate: ""
+  latency_threshold: 5
+  throughput_threshold: 5
+  success_threshold: 1
+  quality_threshold: 1

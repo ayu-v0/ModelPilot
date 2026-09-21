@@ -1,0 +1,2 @@
+{"id":"case-001","input":"hello","expected":"hello"}
+{"id":"case-002","input":"model benchmark","expected":"model benchmark"}

@@ -1,0 +1,15 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+
+storage:
+  driver: file
+  path: ./data
+
+benchmark:
+  default_timeout: 30s
+  max_concurrency: 8
+
+optimizer:
+  strategy: random
+  max_trials: 20
