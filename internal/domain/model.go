@@ -44,6 +44,8 @@ type BenchmarkTask struct {
 type RequestResult struct {
 	SampleID       string `json:"sample_id"`
 	Success        bool   `json:"success"`
+	StatusCode     int    `json:"status_code,omitempty"`
+	ErrorType      string `json:"error_type,omitempty"`
 	Error          string `json:"error,omitempty"`
 	DurationMillis int64  `json:"duration_ms"`
 	InputTokens    int    `json:"input_tokens,omitempty"`

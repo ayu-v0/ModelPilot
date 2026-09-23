@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/your-org/modelpilot/internal/domain"
-	"github.com/your-org/modelpilot/pkg/model"
+	"github.com/ayu-v0/ModelPilot/internal/domain"
+	"github.com/ayu-v0/ModelPilot/pkg/model"
 )
 
 func TestRunner(t *testing.T) {

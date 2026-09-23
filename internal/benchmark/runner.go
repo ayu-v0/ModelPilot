@@ -2,12 +2,14 @@ package benchmark
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/ayu-v0/ModelPilot/internal/domain"
 	"github.com/ayu-v0/ModelPilot/pkg/metrics"
+	"github.com/ayu-v0/ModelPilot/pkg/model"
 )
 
 type ResultStore interface {
@@ -63,6 +65,11 @@ func (r Runner) Run(ctx context.Context, task domain.BenchmarkTask, dataset doma
 			}
 			if err != nil {
 				result.Error = err.Error()
+				result.ErrorType = classifyError(err)
+				var httpErr *model.HTTPError
+				if errors.As(err, &httpErr) {
+					result.StatusCode = httpErr.StatusCode
+				}
 			} else {
 				result.Output = response.Output
 				result.InputTokens = response.InputTokens
@@ -110,4 +117,27 @@ func (r Runner) Run(ctx context.Context, task domain.BenchmarkTask, dataset doma
 		}
 	}
 	return result, nil
+}
+
+func classifyError(err error) string {
+	if err == nil {
+		return ""
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return "timeout"
+	}
+	if errors.Is(err, context.Canceled) {
+		return "canceled"
+	}
+	var httpErr *model.HTTPError
+	if errors.As(err, &httpErr) {
+		if httpErr.StatusCode >= 400 && httpErr.StatusCode < 500 {
+			return "http_4xx"
+		}
+		if httpErr.StatusCode >= 500 {
+			return "http_5xx"
+		}
+		return "http_error"
+	}
+	return "model_error"
 }

@@ -3,7 +3,7 @@ package benchmark
 import (
 	"testing"
 
-	"github.com/your-org/modelpilot/internal/domain"
+	"github.com/ayu-v0/ModelPilot/internal/domain"
 )
 
 func TestCompareDetectsRegression(t *testing.T) {

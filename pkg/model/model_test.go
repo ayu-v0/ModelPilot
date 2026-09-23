@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/your-org/modelpilot/internal/domain"
+	"github.com/ayu-v0/ModelPilot/internal/domain"
 )
 
 func TestHTTPAdapter(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/your-org/modelpilot/internal/domain"
+	"github.com/ayu-v0/ModelPilot/internal/domain"
 )
 
 func TestAggregatorPerformanceMetrics(t *testing.T) {

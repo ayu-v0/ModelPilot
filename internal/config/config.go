@@ -30,6 +30,7 @@ type ModelConfig struct {
 type BenchmarkConfig struct {
 	Concurrency    int `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
 	TimeoutSeconds int `json:"timeout_seconds,omitempty" yaml:"timeout_seconds,omitempty"`
+	Limit          int `json:"limit,omitempty" yaml:"limit,omitempty"`
 }
 
 type CompareConfig struct {

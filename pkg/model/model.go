@@ -104,14 +104,23 @@ func (m HTTP) postJSON(ctx context.Context, payload []byte) ([]byte, error) {
 	body, readErr := io.ReadAll(resp.Body)
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if readErr != nil {
-			return nil, fmt.Errorf("model endpoint returned status %d", resp.StatusCode)
+			return nil, &HTTPError{StatusCode: resp.StatusCode, Message: "unable to read error response"}
 		}
-		return nil, fmt.Errorf("model endpoint returned status %d: %s", resp.StatusCode, string(body))
+		return nil, &HTTPError{StatusCode: resp.StatusCode, Message: string(body)}
 	}
 	if readErr != nil {
 		return nil, readErr
 	}
 	return body, nil
+}
+
+type HTTPError struct {
+	StatusCode int
+	Message    string
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("model endpoint returned status %d: %s", e.StatusCode, e.Message)
 }
 
 type OpenAICompatible struct {
@@ -133,6 +142,10 @@ func (m OpenAICompatible) Name() string {
 func (m OpenAICompatible) Invoke(ctx context.Context, req domain.ModelRequest) (domain.ModelResponse, error) {
 	if m.Endpoint == "" {
 		return domain.ModelResponse{}, fmt.Errorf("openai compatible endpoint is required")
+	}
+
+	if m.ModelName == "" {
+		return domain.ModelResponse{}, fmt.Errorf("openai compatible model name is required")
 	}
 
 	payload := openAIChatRequest{
@@ -174,8 +187,8 @@ func (m OpenAICompatible) Invoke(ctx context.Context, req domain.ModelRequest) (
 type openAIChatRequest struct {
 	Model       string          `json:"model"`
 	Messages    []openAIMessage `json:"messages"`
-	Temperature float64         `json:"temperature,omitempty"`
-	MaxTokens   int             `json:"max_tokens,omitempty"`
+	Temperature float64         `json:"temperature"`
+	MaxTokens   int             `json:"max_tokens"`
 }
 
 type openAIMessage struct {

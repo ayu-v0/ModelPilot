@@ -212,6 +212,27 @@ go run ./cmd/modelpilot \
 
 比较通过时进程退出码为 `0`，检测到回归时退出码为 `2`，加载结果失败时退出码为 `1`。使用 `-json` 可以输出机器可读的比较报告。
 
+### 限制测评数据量
+
+使用 `-limit` 可以限制本次测评最多处理的数据集样本数量，程序按 JSONL 文件顺序取前 N 条。`0` 或不配置表示处理全部数据。
+
+```bash
+./dist/modelpilot-linux-amd64 \
+  -dataset ./examples/dataset.jsonl \
+  -model-type mock \
+  -limit 100 \
+  -concurrency 4
+```
+
+配置文件方式：
+
+```yaml
+benchmark:
+  concurrency: 4
+  timeout_seconds: 30
+  limit: 100
+```
+
 使用通用 HTTP JSON 模型服务：
 
 ```bash
@@ -289,6 +310,7 @@ gofmt -w .
 - [x] 基础命令行测评入口
 - [x] 基线结果比较与性能回归检测
 - [x] YAML/JSON 配置文件加载
+- [x] 数据集样本数量限制
 
 ## 规划中的能力
 

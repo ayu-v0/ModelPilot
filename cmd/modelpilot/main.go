@@ -28,6 +28,7 @@ func main() {
 	endpoint := flag.String("endpoint", "", "HTTP model endpoint")
 	token := flag.String("token", "", "Bearer token; prefer MODELPILOT_TOKEN")
 	timeout := flag.Int("timeout", 0, "per-request timeout in seconds")
+	limit := flag.Int("limit", 0, "maximum number of dataset samples; 0 means all")
 	temperature := flag.Float64("temperature", -1, "OpenAI-compatible sampling temperature")
 	maxTokens := flag.Int("max-tokens", -1, "OpenAI-compatible maximum output tokens")
 
@@ -44,7 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	applyConfig(&loaded, datasetPath, output, concurrency, modelType, modelName, endpoint, token, timeout, temperature, maxTokens, baselineID, candidateID, latencyThreshold, throughputThreshold, successThreshold, qualityThreshold)
+	applyConfig(&loaded, datasetPath, output, concurrency, modelType, modelName, endpoint, token, timeout, limit, temperature, maxTokens, baselineID, candidateID, latencyThreshold, throughputThreshold, successThreshold, qualityThreshold)
 	if *token == "" {
 		*token = os.Getenv("MODELPILOT_TOKEN")
 	}
@@ -67,6 +68,7 @@ func main() {
 
 	if *datasetPath == "" {
 		fmt.Println("ModelPilot benchmark runner")
+		fmt.Println("Version:", version)
 		fmt.Println("Benchmark usage: modelpilot -dataset ./dataset.jsonl [-model-type mock|http|openai]")
 		fmt.Println("Config usage:    modelpilot -config ./configs/benchmark.example.yaml")
 		fmt.Println("Compare usage:   modelpilot -baseline benchmark-1 -candidate benchmark-2 [-output ./data/results]")
@@ -77,8 +79,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if *limit > 0 && *limit < len(dataset.Samples) {
+		dataset.Samples = dataset.Samples[:*limit]
+	}
 
-	selectedModel, err := buildModel(*modelType, *modelName, *endpoint, *token, valueOrDefault(*temperature, 0), valueOrDefaultInt(*maxTokens, 0))
+	selectedModel, err := buildModel(*modelType, *modelName, *endpoint, *token, valueOrDefault(*temperature, 0), valueOrDefaultInt(*maxTokens, 4096))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -113,7 +118,7 @@ func main() {
 		result.Summary.Throughput, result.Summary.TokenThroughput, result.Quality)
 }
 
-func applyConfig(c *config.Config, dataset, output *string, concurrency *int, modelType, modelName, endpoint, token *string, timeout *int, temperature *float64, maxTokens *int, baseline, candidate *string, latency, throughput, success, quality *float64) {
+func applyConfig(c *config.Config, dataset, output *string, concurrency *int, modelType, modelName, endpoint, token *string, timeout, limit *int, temperature *float64, maxTokens *int, baseline, candidate *string, latency, throughput, success, quality *float64) {
 	if *dataset == "" {
 		*dataset = c.Dataset
 	}
@@ -125,6 +130,9 @@ func applyConfig(c *config.Config, dataset, output *string, concurrency *int, mo
 	}
 	if *timeout == 0 {
 		*timeout = c.Benchmark.TimeoutSeconds
+	}
+	if *limit == 0 {
+		*limit = c.Benchmark.Limit
 	}
 	if *modelType == "" {
 		*modelType = c.Model.Type

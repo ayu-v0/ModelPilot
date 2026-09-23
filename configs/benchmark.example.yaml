@@ -19,6 +19,7 @@ model:
 benchmark:
   concurrency: 4
   timeout_seconds: 30
+  # limit: 100  # 只测前 100 条；不配置或设为 0 表示全部
 
 compare:
   baseline: ""
