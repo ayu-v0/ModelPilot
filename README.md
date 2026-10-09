@@ -150,7 +150,35 @@ ModelPilot 是一个基于 Go 构建的模型性能测评与自动调优平台�
 
 ## 快速开始
 
-> 当前仓库已完成基础项目目录初始化，核心业务模块将按领域逐步实现。
+> 已提供 CLI 和可独立部署的 HTTP API 服务。部署后可通过接口提交异步测评、查询状态与结果、取消任务及比较基线，无需登录服务器执行 CLI。
+
+### Web API 部署
+
+创建 `.env` 并设置服务访问密钥：
+
+```dotenv
+MODELPILOT_API_KEY=replace-with-a-long-random-secret
+MODELPILOT_ALLOWED_HOSTS=api.openai.com,inference.example.com
+```
+
+```bash
+docker compose up -d --build
+curl http://localhost:8080/healthz
+```
+
+也可以直接运行 `go run ./cmd/modelpilot-server`（必须设置 `MODELPILOT_API_KEY`）。默认监听 `:8080`，Compose 仅绑定本机端口，远程访问建议通过 HTTPS 反向代理。
+
+**完整部署说明、接口参数和 curl 示例：[HTTP API 文档](docs/api.md)**。
+
+| 方法 | 接口 | 功能 |
+| --- | --- | --- |
+| POST | `/api/v1/benchmarks` | 提交内嵌 JSON 数据集，异步测评 |
+| GET | `/api/v1/benchmarks` | 任务列表 |
+| GET | `/api/v1/benchmarks/{id}` | 查询任务和完整结果 |
+| POST | `/api/v1/benchmarks/{id}/cancel` | 取消测评 |
+| POST | `/api/v1/comparisons` | 基线对比 |
+
+所有业务接口通过 `Authorization: Bearer <MODELPILOT_API_KEY>` 认证。结果持久化保存，服务重启时未完成任务标记为 `interrupted`；当前适用于单实例部署。
 
 ### 环境要求
 
@@ -315,14 +343,16 @@ gofmt -w .
 ## 规划中的能力
 
 - [x] HTTP/OpenAI Compatible 模型适配器接入命令行
-- [ ] 测评任务及数据集管理 API
+- [x] 异步测评任务 API（内嵌数据集提交、状态、结果、取消）
+- [ ] 独立数据集管理 API
 - [ ] 更多指标插件
 - [x] 基准测试与回归检测
 - [ ] 网格搜索和随机搜索调优器
 - [ ] 多目标自动调优
 - [ ] Prometheus 指标与 Grafana 看板
 - [ ] Docker/Kubernetes 执行器
-- [ ] Web UI 与任务管理 API
+- [x] HTTP API、Bearer 认证与 Docker Compose 部署
+- [ ] 独立 Web UI
 
 ## 发布与二进制构建
 
